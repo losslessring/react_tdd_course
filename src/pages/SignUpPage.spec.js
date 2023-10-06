@@ -2,7 +2,8 @@ import SignUpPage from "./SignUpPage"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { act } from "react-dom/test-utils"
-import axios from 'axios'
+import {setupServer} from "msw/node"
+import { rest } from "msw"
 
 describe("Sign Up Page", () => {
     it("has header", () => {
@@ -54,6 +55,7 @@ describe("Sign Up Page", () => {
 
 describe("Interactions", () => {
     it("enables the button when password and password repeat fields have the same value", () => {
+        
         render(<SignUpPage />)
         const passwordInput = screen.getByLabelText("Password")
         const passwordRepeatInput = screen.getByLabelText("Password Repeat")
@@ -64,7 +66,18 @@ describe("Interactions", () => {
         const button = screen.queryByRole('button', {name: 'Sign Up'})
         expect(button).toBeEnabled()
     })
-    it("sends username, email and password to backend after clicking the button", () => {
+    it("sends username, email and password to backend after clicking the button", async () => {
+
+        let requestBody
+
+        const server = setupServer(
+            rest.post("/api/1.0/users", (req, res, ctx) =>{
+                requestBody = req.body
+                return res(ctx.status(200))
+            })
+        )
+        server.listen()
+
         render(<SignUpPage />)
         const usernameInput = screen.getByLabelText('Username')
         const emailInput = screen.getByLabelText('E-mail')
@@ -79,15 +92,15 @@ describe("Interactions", () => {
         })
         const button = screen.queryByRole('button', {name: 'Sign Up'})
         
-        const mockFn = jest.fn()
-        window.fetch = mockFn
+
         act(() => {
             userEvent.click(button)
         })
 
-        const firstCallOfMockFunction = mockFn.mock.calls[0]
-        const body = JSON.parse(firstCallOfMockFunction[1].body)
-        expect(body).toEqual({
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        
+        expect(requestBody).toEqual({
             username: 'user1',
             email: 'user1@mail.com',
             password: 'P4ssword'
