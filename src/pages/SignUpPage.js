@@ -23,20 +23,20 @@ class SignUpPage extends Component {
         event.preventDefault()
         const { username, email, password } = this.state
         const body = { username, email, password }
-        try {
-            const result = await axios.post("/api/1.0/users", body)
-        }
-        catch(error){
-            console.log(error)
-        }
+        // try {
+        //     const result = await axios.post("/api/1.0/users", body)
+        // }
+        // catch(error){
+        //     console.log(error)
+        // }
 
-        // fetch('/api/1.0/users', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(body)
-        // })
+        fetch('/api/1.0/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        })
         
     }
 
